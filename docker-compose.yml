@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: commondbpguser
+      POSTGRES_DB: commondbpg
+    env_file:
+      - .env
+    ports:
+      - 7432:5432
+    volumes:
+      - common_db_data_dockerized:/var/lib/postgresql/data
+      - ./sql-files:/sql-files
+    working_dir: /sql-files
+
+volumes:
+  common_db_data_dockerized:

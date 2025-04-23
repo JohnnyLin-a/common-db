@@ -1,0 +1,2 @@
+CREATE USER username1 WITH ENCRYPTED PASSWORD 'password1';
+CREATE DATABASE username1 WITH OWNER = username1;
