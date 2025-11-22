@@ -1,3 +1,4 @@
+# Only use this file as a template, and edit this as you go
 services:
   postgres17:
     image: postgres:17-alpine
@@ -10,9 +11,57 @@ services:
     ports:
       - 7432:5432
     volumes:
-      - pg17_data:/var/lib/postgresql/data
+      - ./pg17_data:/var/lib/postgresql/data
       - ./sql-files:/sql-files
     working_dir: /sql-files
+    networks:
+      - app-network-1
+      - app-network-2
 
-volumes:
-  pg17_data:
+  # Auto-update services scoped by label
+  watchtower-per-half-minute:
+    image: containrrr/watchtower@sha256:6dd50763bbd632a83cb154d5451700530d1e44200b268a4e9488fefdfcf2b038 # latest Nov 11, 2023
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - "--interval"
+      - "30"
+      - --rolling-restart
+      - --cleanup
+      - --label-enable
+      - --api-version
+      - "1.44"
+      - --scope
+      - halfminute
+
+  watchtower-per-day:
+    image: containrrr/watchtower@sha256:6dd50763bbd632a83cb154d5451700530d1e44200b268a4e9488fefdfcf2b038 # latest Nov 11, 2023
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - --rolling-restart
+      - --cleanup
+      - --label-enable
+      - --api-version
+      - "1.44"
+      - --scope
+      - day
+
+  valkey7:
+    image: valkey/valkey:7.2-alpine
+    volumes:
+      - ./valkey7_data:/data
+    networks:
+      - app-network-1
+    restart: unless-stopped
+
+networks:
+  app-network-1:
+    external: true
+    name: app-network-1
+  app-network-2:
+    external: true
+    name: app-network-2
+
